@@ -1,0 +1,68 @@
+npx create-react-app agentic-ui
+cd agentic-ui
+import React, { useState } from "react";
+
+function App() {
+  const [claimId, setClaimId] = useState("");
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setResult(null);
+
+    try {
+      const response = await fetch("https://repo-aidev.onrender.com", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ claim_id: claimId })
+      });
+
+      const data = await response.json();
+      setResult(data);
+    } catch (error) {
+      setResult({ status: "error", reason: "Server error or invalid response." });
+    }
+
+    setLoading(false);
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="bg-white shadow-md rounded-lg p-6 w-full max-w-md">
+        <h2 className="text-2xl font-bold mb-4">🧠 Agentic AI: Claims Triage</h2>
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            placeholder="Enter Claim ID"
+            value={claimId}
+            onChange={(e) => setClaimId(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded mb-4"
+            required
+          />
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
+            disabled={loading}
+          >
+            {loading ? "Analyzing..." : "Submit"}
+          </button>
+        </form>
+
+        {result && (
+          <div className="mt-6 bg-gray-100 p-4 rounded">
+            <h3 className="font-semibold text-lg">Result:</h3>
+            <p><strong>Status:</strong> {result.status}</p>
+            <p><strong>Reason:</strong> {result.reason}</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default App;
+npm start
